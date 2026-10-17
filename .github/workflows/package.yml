@@ -1,5 +1,14 @@
 name: Build development packages (no release publication)
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
+      - 'CMakeLists.txt'
+      - '.github/workflows/package.yml'
 permissions:
   contents: read
 jobs:
