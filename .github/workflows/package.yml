@@ -37,16 +37,29 @@ jobs:
             $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
             "$digest  $($_.Name)" | Add-Content -Encoding ascii packages/SHA256SUMS.txt
           }
-      - name: Verify installed binaries
+      - name: Verify extracted package binaries
         shell: pwsh
         env:
           QT_QPA_PLATFORM: offscreen
           QT_QUICK_BACKEND: software
         run: |
+          $archive = Get-ChildItem packages -Filter *.zip | Select-Object -First 1
+          if (-not $archive) { throw 'No generated ZIP package' }
+          Expand-Archive -LiteralPath $archive.FullName -DestinationPath extracted
+          $app = Get-ChildItem extracted -Recurse -File | Where-Object { $_.Name -eq $(if ($IsWindows) { 'DiskPilot.exe' } else { 'DiskPilot' }) } | Select-Object -First 1
+          if (-not $app) { throw 'Desktop binary missing from archive' }
           $suffix = if ($IsWindows) { '.exe' } else { '' }
-          & "./stage/bin/diskpilot-cli$suffix" --help
+          $bin = $app.Directory.FullName
+          & (Join-Path $bin "diskpilot-cli$suffix") --help
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & "./stage/bin/DiskPilot$suffix" --smoke-test
+          if ($IsWindows) {
+            # Check bundled Qt rather than finding the SDK through PATH.
+            $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+            Remove-Item Env:QML_IMPORT_PATH,Env:QML2_IMPORT_PATH,Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
+          } else {
+            & chmod +x $app.FullName
+          }
+          & $app.FullName --smoke-test
           exit $LASTEXITCODE
       - uses: actions/upload-artifact@v4
         with:

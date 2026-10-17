@@ -17,6 +17,18 @@ jobs:
         run: cmake --build build --config Release --parallel 2
       - name: Test
         run: ctest --test-dir build -C Release --output-on-failure
+      - name: Measure a controlled 10000-file scan
+        shell: python
+        run: |
+          import os, pathlib, subprocess, sys
+          cli = pathlib.Path('build/Release/diskpilot-cli.exe' if os.name == 'nt' else 'build/diskpilot-cli').resolve()
+          with open('build/benchmark-10000.json', 'w', encoding='utf-8') as output:
+              subprocess.run([sys.executable, 'tools/benchmark.py', '--cli', str(cli), '--files', '10000'], stdout=output, check=True)
+      - name: Keep actual benchmark results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-10000-${{ matrix.os }}
+          path: build/benchmark-10000.json
       - name: Keep test logs
         if: always()
         uses: actions/upload-artifact@v4
