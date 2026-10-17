@@ -29,7 +29,8 @@ jobs:
       - name: Install and package
         shell: pwsh
         run: |
-          cmake --install build --config Release --prefix stage
+          $stagePath = Join-Path (Get-Location).Path 'stage'
+          cmake --install build --config Release --prefix $stagePath
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           cpack --config build/CPackConfig.cmake -C Release -B packages
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

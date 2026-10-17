@@ -40,7 +40,8 @@ ctest --test-dir build -C Release --output-on-failure
 For the desktop application provide Qt 6.5+ Quick/Quick Controls development
 packages, then add `-DDISKPILOT_BUILD_GUI=ON`. CI targets Qt 6.8.3. Set
 `CMAKE_PREFIX_PATH` to Qt's installation when necessary. Install using
-`cmake --install build --config Release --prefix stage`.
+`cmake --install build --config Release --prefix ABSOLUTE_STAGE_DIRECTORY`.
+Qt's deployment helper requires an absolute installation prefix.
 
 Windows executable paths normally include `Release/`. Qt is not required by the
 core or CLI. `DISKPILOT_BUILD_TESTS=OFF` skips tests without validating anything.
