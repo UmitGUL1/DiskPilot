@@ -1,0 +1,48 @@
+name: Build development packages (no release publication)
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  package:
+    strategy:
+      matrix:
+        os: [windows-2022, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.3'
+          cache: true
+      - run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DDISKPILOT_BUILD_GUI=ON
+      - run: cmake --build build --config Release --parallel 2
+      - run: ctest --test-dir build -C Release --output-on-failure
+      - name: Install and package
+        shell: pwsh
+        run: |
+          cmake --install build --config Release --prefix stage
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cpack --config build/CPackConfig.cmake -C Release -B packages
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem packages -Filter *.zip | ForEach-Object {
+            $digest = (Get-FileHash -Algorithm SHA256 -LiteralPath $_.FullName).Hash.ToLowerInvariant()
+            "$digest  $($_.Name)" | Add-Content -Encoding ascii packages/SHA256SUMS.txt
+          }
+      - name: Verify installed binaries
+        shell: pwsh
+        env:
+          QT_QPA_PLATFORM: offscreen
+          QT_QUICK_BACKEND: software
+        run: |
+          $suffix = if ($IsWindows) { '.exe' } else { '' }
+          & "./stage/bin/diskpilot-cli$suffix" --help
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & "./stage/bin/DiskPilot$suffix" --smoke-test
+          exit $LASTEXITCODE
+      - uses: actions/upload-artifact@v4
+        with:
+          name: DiskPilot-development-${{ matrix.os }}
+          path: |
+            packages/*.zip
+            packages/SHA256SUMS.txt
+          if-no-files-found: error

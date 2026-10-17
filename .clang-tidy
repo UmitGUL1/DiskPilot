@@ -1,0 +1,2 @@
+Checks: '-*,bugprone-*,performance-*,modernize-use-nullptr,cppcoreguidelines-owning-memory'
+HeaderFilterRegex: 'include/diskpilot/.*|src/.*'

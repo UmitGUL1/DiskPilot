@@ -1,0 +1,9 @@
+/build*/
+/.cache/
+/.idea/
+/.vs/
+*.user
+/.work/
+/out/
+/packages/
+/stage/
