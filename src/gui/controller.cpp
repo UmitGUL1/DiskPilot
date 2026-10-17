@@ -27,7 +27,7 @@ QString bytes(std::uintmax_t n) {
     return QString::number(size,'f',unit?2:0)+" "+units[unit];
 }
 template<class Fn> void post(QPointer<Controller> self,Fn action) {
-    if(self)QMetaObject::invokeMethod(self,[self,action=std::move(action)]{if(self)action(*self);},Qt::QueuedConnection);
+    if(self)QMetaObject::invokeMethod(self,[self,action=std::move(action)]() mutable {if(self)action(*self);},Qt::QueuedConnection);
 }
 }
 Controller::Controller(QObject* parent):QObject(parent) {
