@@ -1,84 +1,79 @@
-# DiskPilot implementation status
+# DiskPilot verification status
 
 Updated: 2026-10-18, Europe/Istanbul.
 
-The existing Phases 1–3 archive was restored into this workspace. Original source
-files are preserved in the private restoration directory. The user authorized
-continuing source implementation with build/test acceptance deferred to GitHub.
-**No acceptance phase is marked passed and no release is claimed.**
+Verified implementation commit: `956762735cae496c9698d112b581e21a79f33886`.
+Later documentation-only commits do not alter these tested binaries or sources.
 
-| Phase | Current source | Acceptance evidence |
-| --- | --- | --- |
-| 0 | CMake core/CLI targets, pinned dependencies, optional Qt target | Local build attempted; toolchain/cache failure; CI pending |
-| 1 | Existing iterative scanner, native metadata, counts, allocation, progress/cancel | Tests retained; not executed |
-| 2 | Existing largest-file analysis, filters, volume metrics, JSON/CSV | Tests retained; not executed |
-| 3 | Existing squarified layout plus bounded interactive Canvas view | Geometry tests retained; Qt runtime not tested |
-| 4 | Size/partial/full SHA-256/byte verification, checked handles, hard-link exclusion, cancellation/errors | Hash vectors and synthetic fixtures added; not executed |
-| 5 | Contextual Python/JS/CMake/Cargo/Maven/Gradle candidates, evidence/rebuild costs, selected plans | Regression fixtures added; not executed |
-| 6 | Explicit-approval executor, metadata manifest revalidation, source/link/hard-link/protected-path refusal, partial outcomes | Native trash intentionally refuses all operations; safe native integration remains open |
-| 7 | Qt Quick dashboard/explorer/treemap/large-files/duplicates/cleanup/snapshots/reports/settings sources, background workers | Qt unavailable locally; GUI build, loading and interaction tests pending |
-| 8 | Bounded metadata snapshot parsing, same-root complete-scan comparison, escaped HTML findings | Round-trip/escaping/schema/CLI fixtures added; not executed |
-| 9 | Safety review, bounded buffers, cancellation, sanitizer CI definition, synthetic benchmark driver | No sanitizer, benchmark, memory or static-analysis result claimed |
-| 10 | Documentation, license, issue/PR templates, Qt deployment/CPack and manual artifact workflow | No package, screenshot, installer, clean-machine test or release verified |
+## Completed GitHub verification
 
-## Work completed in this workspace
+Build/test run: https://github.com/UmitGUL1/DiskPilot/actions/runs/39074229540
+Package run: https://github.com/UmitGUL1/DiskPilot/actions/runs/39074229536
 
-- Restored the actual prior code instead of replacing it with a new scaffold.
-- Added native checked file access without making Qt a core dependency.
-- Added incremental SHA-256 and final byte comparison; distinct hard-link identities
-  are considered only once. Cancelled verification publishes no duplicate groups.
-- Added conservative candidate context and metadata manifests. Source-bearing,
-  linked, protected, overlapping and changed trees are refused.
-- Kept native trash disabled: path-based shell deletion cannot meet the required
-  protection against concurrent replacement. No permanent deletion exists.
-- Added snapshot/comparison commands and JSON/HTML findings. Export to a named
-  snapshot uses exclusive creation and preserves existing files.
-- Added Qt/QML sources with worker cancellation, local preferences and plain-text
-  rendering for untrusted paths, including treemap tooltips.
-- Added Windows/Linux core and desktop CI, GUI-load smoke test, Linux ASan/UBSan
-  job and a manual development-package workflow without release publication.
+| Check | Result | Executed CTest cases |
+| --- | --- | ---: |
+| Linux core and CLI | PASS | 58 / 58 |
+| Windows core and CLI | PASS | 57 / 57 |
+| Linux Qt desktop, controller and app loading | PASS | 60 / 60 |
+| Windows Qt desktop, controller and app loading | PASS | 59 / 59 |
+| Linux AddressSanitizer + UndefinedBehaviorSanitizer | PASS | 58 / 58 |
+| Linux package, checksum and extracted CLI/GUI loading | PASS | 60 / 60 before packaging |
+| Windows package, checksum and extracted CLI/GUI loading | PASS | 59 / 59 before packaging |
 
-## Actual local verification
+All seven jobs completed successfully. Windows has one fewer core case because
+the POSIX mode-000 permission test is not compiled there; it was not a failed or
+silently skipped Windows check. Do not sum matrix counts as unique tests.
 
-The archive was successfully downloaded and extracted. Inventory inspection
-confirmed the restored scanner/analysis/treemap and new implementation files.
+The core is independent of Qt. Desktop jobs used Qt 6.8.3. Controller integration
+tests exercise real fixture scans, navigation, filtering, treemap geometry,
+duplicate review with one copy preserved, cleanup preview, snapshot save/compare,
+report export, invalid roots and best-effort cancellation.
 
-A portable Zig/Clang development toolchain and pinned JSON/GoogleTest sources were
-prepared privately. Initial compilation required enabling that toolchain's
-experimental libc++ stop-token implementation. Subsequent core/CLI and test builds
-failed in toolchain temporary/cache operations, including `Permission denied` and
-`unable to write ... builtin.zig: Unexpected`. No executable or test run resulted.
-A syntax-only attempt also did not finish successfully and was stopped. These
-attempts do not establish passing syntax, linkability or runtime behavior.
+## Distribution artifacts
 
-No Qt SDK was available, so GUI compilation and rendering were not attempted.
-No CMake configure success, CTest pass, screenshot or benchmark number is asserted.
-No repository initialization, commit, push, publication or release was performed.
+The package run contains `DiskPilot-development-windows-2022` and
+`DiskPilot-development-ubuntu-24.04`. Each artifact includes a platform ZIP and
+`SHA256SUMS.txt`. CPack generated `DiskPilot-0.1.0-win64.zip` and
+`DiskPilot-0.1.0-Linux.zip`; both were extracted and the contained CLI and GUI
+were launched successfully. Windows verification removed Qt SDK paths and plugin
+environment overrides before GUI startup, checking the bundled Qt deployment.
 
-## Remaining product gaps and risks
+These are development artifacts, not a published GitHub Release or installer.
+Hosted-runner extraction checks do not replace clean-machine compatibility tests
+or interactive visual acceptance. Linux still depends on compatible host libraries.
 
-1. Run all CI jobs and correct every compiler/runtime failure before accepting phases.
-2. Native OS trash integration is absent by design. Review and plan functionality
-   does not make the application a working deletion utility yet.
-3. Complete GUI automation, resizing, filtering, selection and error-state checks.
-   Profile large-model navigation and filtering, which still run some bounded-view
-   queries on the UI thread. List displays are capped; exports retain findings.
-4. Persistent recent-scan indexing, scan exclusions, full explorer sorting and
-   expanded native filesystem fixtures remain roadmap work.
-5. Live filesystem scans are non-atomic. Path traversal can race ancestor
-   replacement; POSIX metadata checks cannot detect adversarial same-metadata
-   rewrites. Duplicate verification describes observed equality, not future state.
-6. Verify Qt and compiler-runtime license obligations and clean-machine deployment.
-   Linux packages require matching runtime libraries; portability is not proven.
-7. Run actual 10k/100k/500k/1M benchmarks and measure peak memory/cancellation.
+## Defects fixed during verification
 
-## Resume commands
+- Made queued GUI callback wrappers mutable so captured result objects can be moved.
+- Used an absolute installation prefix required by Qt's deployment helper.
+- Restored Unix executable permissions after archive extraction for the package test.
+- Tested the extracted ZIP contents rather than only the installation staging tree.
 
-```sh
-cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-cmake --build build --config Release --parallel 2
-ctest --test-dir build -C Release --output-on-failure
-```
+## Measured performance
 
-Repeat with `-DDISKPILOT_BUILD_GUI=ON` and Qt 6.5+ available. Use the manual package
-workflow only after CI passes, then test extracted artifacts on clean machines.
+Controlled 10,000-file benchmarks ran successfully on Windows and Linux. Results
+and their exact source/run are recorded in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+These are single hosted-runner measurements; cache state was not controlled.
+No peak-memory, 100k/500k/1M, duplicate-throughput or cancellation-latency claim is made.
+
+## Safety and remaining release gates
+
+Native OS trash execution remains intentionally unavailable. The executor's
+approval/revalidation and failure handling are tested through a fixture adapter;
+the native adapter refuses operations. No permanent-deletion fallback exists.
+Passing tests does not enable unimplemented deletion functionality.
+
+Live scans are not atomic snapshots. Adversarial concurrent path replacement and
+same-metadata content rewrites are outside the current guarantees. Source-bearing,
+linked, hard-linked, protected, changed and overlapping cleanup selections are
+refused by default.
+
+Remaining work includes native handle-bound trash integration, additional native
+long-path/junction/sparse/mount fixtures, GUI visual/manual testing, large-model
+profiling, scan exclusions, recent-scan indexing, advanced explorer sorting,
+static analysis and clean-machine distribution/license review. The broad master
+specification is not represented as fully complete merely because current CI passes.
+
+Local compilation initially failed in the portable toolchain's temporary/cache
+operations. Those historical environment failures were superseded by the actual
+Windows/Linux GitHub builds above. The source and fixes have been pushed to `main`.

@@ -42,5 +42,6 @@ capped for rendering; full findings can be exported. Untrusted text is rendered
 as plain text; report HTML independently escapes it. Preferences use local QSettings.
 
 Some UI model queries remain synchronous and need profiling at large scales.
-No source state in this checkpoint should be confused with a passed acceptance
-gate. See IMPLEMENTATION_STATUS.md for actual evidence and remaining requirements.
+Core, controller, app-load, sanitizer and package tests now pass on GitHub.
+See IMPLEMENTATION_STATUS.md for exact evidence and remaining release requirements;
+these checks do not establish native-trash support or visual acceptance.

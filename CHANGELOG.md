@@ -10,3 +10,9 @@
 - Added regression fixtures, safety documentation and project contribution files.
 
 Actual test outcomes are recorded separately in IMPLEMENTATION_STATUS.md.
+
+- Verified Windows/Linux core and Qt desktop/controller suites, Linux ASan/UBSan,
+  and extracted development ZIP packages with checksums in GitHub Actions.
+- Fixed mutable queued GUI callbacks, absolute Qt installation prefixes and Unix
+  executable permissions in extracted-package checks.
+- Recorded actual 10,000-file benchmark measurements on both platforms.

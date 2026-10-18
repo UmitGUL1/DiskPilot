@@ -1,25 +1,8 @@
-# Verification plan
+# Tests and verification
 
-No tests in this checkpoint have been executed. The local toolchain cannot run.
-Portable toolchain attempts failed during temporary/cache operations; they do not
-establish successful compilation. Qt remains unavailable locally.
-The provided GitHub Actions workflow is a future verification mechanism, not a
-successful CI result.
-
-## Existing checks
-
-GoogleTest source covers empty/nested/Unicode/deep trees, invalid roots, cancellation,
-entry limits, hard links, symlink loops, link ancestors, disappearing directories,
-and Linux permission denial. Symlink fixtures explicitly skip when privileges are
-unavailable; mode-000 permission fixtures skip when a privileged runner can bypass them.
-
-Analysis/report tests cover deterministic sorting, filters, category totals, JSON
-round trips, CSV quote/newline handling, spreadsheet formula neutralization and
-export stream failures. Treemap tests cover area ratios, non-overlap, bounds,
-deterministic ordering, zero values, invalid geometry and capped directory views.
-
-CTest also defines help/version/invalid-command checks and CLI fixture scans with
-JSON parsing, filtered results, CSV output, missing roots and invalid numeric options.
+The implementation at `956762735cae496c9698d112b581e21a79f33886` passed all seven
+GitHub build/test/package jobs. See [../IMPLEMENTATION_STATUS.md](../IMPLEMENTATION_STATUS.md)
+for exact counts, run links, artifacts and scope limitations.
 
 ## Commands
 
@@ -29,36 +12,42 @@ cmake --build build --config Release --parallel 2
 ctest --test-dir build -C Release --output-on-failure
 ```
 
-Run both Windows and Linux. Inspect skipped tests as well as failures. Add native
-Windows junction, long-path, sparse/compressed allocation fixtures and Linux mount
-fixtures before release acceptance. Add sanitizers on a supported Linux compiler,
-actual stress fixtures and cancellation latency measurements in Phase 9.
+To include desktop checks, provide Qt 6.5+ (CI uses 6.8.3) and configure with
+`-DDISKPILOT_BUILD_GUI=ON`. Tests additionally require Qt Test. GUI tests use an
+offscreen software backend; `gui_load` checks application construction and
+`gui_controller` exercises real controller operations on synthetic files.
 
-Archive/source inventory checks are packaging checks only; they do not establish
-C++ syntax, linkability, runtime behavior or passing tests.
+## Coverage exercised
 
-## Added coverage
+- Empty/nested/Unicode/deep trees, invalid roots, progress/cancellation, entry
+  limits, hard links, symlink loops/ancestors, disappearing directories and POSIX
+  permission denial. Privilege-dependent fixtures explicitly skip if unavailable.
+- Analysis sorting/filtering, extension totals, JSON round trips, CSV escaping and
+  spreadsheet formula neutralization, export stream failures and treemap geometry.
+- Published SHA-256 vectors, multi-block/million-byte input, streamed duplicates,
+  same partial content with different middles, empty files, hard-link exclusion,
+  changed/removed/link-replaced files and cancellation.
+- Cleanup false positives/context, exact approved metadata plans, source/Git
+  protection, repeated selections, incomplete scans, changed descendants,
+  symlink replacement, adapter failure and native adapter refusal.
+- Snapshot round trips/growth/addition, incompatible roots/incomplete scans,
+  traversal/negative sizes/duplicate paths, absence of contents and HTML escaping.
+- CLI help/version/usage, scan/filter exports, duplicates, dry-run cleanup,
+  exclusive snapshot creation, comparison and HTML output.
+- GUI controller scans, folder navigation, filtering, treemap queries, duplicate
+  selection constraints, cleanup preview, snapshots/reports, invalid roots and
+  cancellation settling without a stuck worker.
 
-- Published SHA-256 vectors (including multi-block and million-byte input),
-  streamed duplicates, same partial content/different middle, empty files,
-  hard-link exclusion, changed/removed/link-replaced files and cancellation.
-- Cleanup false positives, ecosystem evidence, exact approved plans, source and
-  Git protection, repeat selection, incomplete scans, changed descendants,
-  symlink replacement, adapter failure and native fail-closed behavior.
-- Snapshot round trips, growth/addition, incomplete/different roots, traversal,
-  negative sizes, duplicate paths, absence of contents and HTML escaping.
-- CLI staged duplicates, read-only cleanup, snapshot overwrite refusal,
-  comparison and HTML reports.
-- Optional GUI load test using `DiskPilot --smoke-test` with an offscreen software
-  backend; this does not replace user-interaction or visual acceptance testing.
+Linux CI runs AddressSanitizer and UndefinedBehaviorSanitizer in a separate Debug
+build. Desktop jobs compile and test both Windows and Linux. Package jobs repeat
+tests, install using an absolute prefix, create CPack ZIPs and checksums, extract
+them, then launch the contained CLI and GUI. Windows removes SDK search paths for
+the extracted GUI check. This is not a full clean-machine or visual-interaction test.
 
-The CI workflow defines Windows/Linux core and Qt desktop jobs plus Linux
-ASan/UBSan. The manual package workflow adds install and GUI-load checks but does
-not prove clean-machine portability. Nothing has been pushed or run in GitHub yet.
-
-## Benchmarks
+## Performance and remaining checks
 
 `tools/benchmark.py` creates controlled 10k/100k/500k/1M-file fixtures and verifies
-scan totals before reporting actual time. Peak memory is explicitly unmeasured.
-No benchmark result is present yet. Do not publish fixture generation time as
-scanner throughput, or infer measurements from this script's existence.
+scan totals before reporting timing. The 10k workflow was run on both platforms;
+actual measurements are in [BENCHMARKS.md](BENCHMARKS.md). Peak memory is explicitly
+unmeasured. Larger benchmarks, native edge-case fixtures, static analysis, visual
+QA and clean-machine deployment remain distinct release gates.

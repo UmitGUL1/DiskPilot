@@ -2,12 +2,16 @@
 
 **Understand your storage. Reclaim it safely.**
 
+[![Build and test](https://github.com/UmitGUL1/DiskPilot/actions/workflows/build.yml/badge.svg)](https://github.com/UmitGUL1/DiskPilot/actions/workflows/build.yml)
+
 DiskPilot is a local C++20 storage analyzer with a Qt-independent CLI and an
 optional Qt Quick desktop application. It scans real metadata, verifies duplicate
 contents, and explains developer cleanup candidates using project context.
 
-This is a development checkpoint, **not a validated release**. See
-[IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md) for actual verification.
+Windows/Linux core and Qt desktop builds, controller tests, Linux sanitizers and
+extracted-package checks pass in GitHub Actions. This remains a development build;
+native trash execution is unavailable. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
+for exact results and remaining release gates.
 
 ## Features in source
 
@@ -89,11 +93,13 @@ but no file contents. Keep exported reports private when paths are sensitive.
 
 ## Development packages
 
-The manual package workflow creates artifacts and checksums without publishing
-a release. Windows Qt deployment and extracted builds still need verification.
-Linux packages require matching Qt runtime libraries and are not advertised as
-self-contained portable applications.
+The package workflow creates development ZIPs and checksums without publishing
+a release. [Download artifacts from the verified package run](https://github.com/UmitGUL1/DiskPilot/actions/runs/39074229536).
+Both platform ZIPs passed extracted CLI/GUI loading checks on hosted runners;
+the Windows check removes SDK paths to exercise bundled Qt. Linux requires
+compatible host libraries. Clean-machine portability is not yet established.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md),
 [ROADMAP.md](ROADMAP.md) and [docs/TESTING.md](docs/TESTING.md).
-Screenshots and benchmark results will be added only after capture/measurement.
+Measured 10,000-file scan results are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+Screenshots will be added only after an actual application capture.
