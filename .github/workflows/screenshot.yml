@@ -17,36 +17,16 @@ jobs:
         with:
           version: '6.8.3'
           cache: true
-      - name: Install screenshot tools
-        run: sudo apt-get update && sudo apt-get install -y imagemagick xdotool xvfb
       - name: Build desktop application
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DDISKPILOT_BUILD_GUI=ON -DDISKPILOT_BUILD_TESTS=OFF
           cmake --build build --parallel 2
       - name: Capture real Qt application
         env:
+          QT_QPA_PLATFORM: offscreen
           QT_QUICK_BACKEND: software
         run: |
-          xvfb-run -a -s "-screen 0 1440x960x24" bash -eu -o pipefail -c '
-            ./build/DiskPilot &
-            app_pid=$!
-            trap "kill $app_pid 2>/dev/null || true" EXIT
-            window_id=""
-            for attempt in $(seq 1 30); do
-              window_id=$(xdotool search --name "^DiskPilot - Understand your storage$" 2>/dev/null | head -n 1 || true)
-              [ -n "$window_id" ] && break
-              sleep 1
-            done
-            [ -n "$window_id" ]
-            xdotool windowactivate --sync "$window_id"
-            xdotool windowsize "$window_id" 1280 840
-            xdotool click --window "$window_id" 520 78
-            xdotool key --window "$window_id" ctrl+a
-            xdotool type --window "$window_id" --delay 1 "$GITHUB_WORKSPACE"
-            xdotool key --window "$window_id" Return
-            sleep 8
-            import -window "$window_id" -quality 92 diskpilot-dashboard.png
-          '
+          ./build/DiskPilot --capture-root "$GITHUB_WORKSPACE" --capture-screen diskpilot-dashboard.png
           file diskpilot-dashboard.png
       - name: Emit screenshot for repository import
         run: |
