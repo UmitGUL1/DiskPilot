@@ -8,6 +8,8 @@ DiskPilot is a local C++20 storage analyzer with a Qt-independent CLI and an
 optional Qt Quick desktop application. It scans real metadata, verifies duplicate
 contents, and explains developer cleanup candidates using project context.
 
+![DiskPilot dashboard scanning the project repository](docs/images/diskpilot-dashboard.png)
+
 Windows/Linux core and Qt desktop builds, controller tests, Linux sanitizers and
 extracted-package checks pass in GitHub Actions. This remains a development build;
 native trash execution is unavailable. See [IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md)
@@ -102,4 +104,3 @@ compatible host libraries. Clean-machine portability is not yet established.
 See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md),
 [ROADMAP.md](ROADMAP.md) and [docs/TESTING.md](docs/TESTING.md).
 Measured 10,000-file scan results are in [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
-Screenshots will be added only after an actual application capture.
